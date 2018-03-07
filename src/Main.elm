@@ -5,6 +5,7 @@ import Html.Attributes exposing (..)
 import Navigation
 
 
+main : Program Never Model Msg
 main =
     Navigation.program UrlChange
         { init = init
