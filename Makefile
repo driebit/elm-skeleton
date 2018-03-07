@@ -30,9 +30,11 @@ distclean: clean
 
 format:
 	@elm-format --yes src
+	@elm-format --yes tests
 
 format-validate:
 	@elm-format --validate src
+	@elm-format --validate tests
 
 help:
 	@echo "Run: make <target> where <target> is one of the following:"
