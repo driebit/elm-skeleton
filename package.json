@@ -1,0 +1,16 @@
+{
+    "name": "elm-skeleton",
+    "version": "0.1.0",
+    "description": "Elm Skeleton",
+    "license": "UNLICENSED",
+    "repository": {
+        "type": "git",
+        "url": "https://gitlab.driebit.nl/driebit/elm-skeleton.git"
+    },
+    "dependencies": {
+        "elm": "0.18.x",
+        "elm-coverage": "0.1.x",
+        "elm-format": "0.7.0-exp",
+        "elm-test": "0.18.x"
+    }
+}
