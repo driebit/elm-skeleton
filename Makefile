@@ -1,5 +1,7 @@
 default: all
 
+.PHONY: test cover
+
 ELM_FILES = $(shell find src -name '*.elm')
 
 SHELL := /bin/bash
@@ -13,6 +15,9 @@ all: $(ELM_FILES)
 
 clean:
 	@rm -Rf dist/*
+
+cover:
+	elm-cover src --elm-test ${NPM_PATH}/elm-test --open -- --compiler ${ROOT_DIR}/.bin/elm-make
 
 deps:
 	@npm install
@@ -32,6 +37,7 @@ help:
 	@echo "Run: make <target> where <target> is one of the following:"
 	@echo "  all"
 	@echo "  clean"
+	@echo "  cover"
 	@echo "  deps"
 	@echo "  distclean"
 	@echo "  format"
