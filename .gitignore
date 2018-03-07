@@ -1,3 +1,4 @@
+*.js
 /dist
-/elm-stuff
 /node_modules
+elm-stuff

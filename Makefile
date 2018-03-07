@@ -4,6 +4,7 @@ ELM_FILES = $(shell find src -name '*.elm')
 
 SHELL := /bin/bash
 NPM_PATH := ./node_modules/.bin
+ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 export PATH := $(NPM_PATH):$(PATH)
 
@@ -36,7 +37,11 @@ help:
 	@echo "  format"
 	@echo "  format-validate"
 	@echo "  help"
+	@echo "  test"
 	@echo "  watch"
+
+test:
+	@elm-test --compiler ${ROOT_DIR}/.bin/elm-make
 
 watch:
 	find src -name '*.elm' | entr make all
