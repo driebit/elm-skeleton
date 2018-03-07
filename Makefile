@@ -21,12 +21,20 @@ distclean: clean
 	@rm -Rf elm-stuff
 	@rm -Rf node_modules
 
+format:
+	@elm-format --yes src
+
+format-validate:
+	@elm-format --validate src
+
 help:
 	@echo "Run: make <target> where <target> is one of the following:"
 	@echo "  all"
 	@echo "  clean"
 	@echo "  deps"
 	@echo "  distclean"
+	@echo "  format"
+	@echo "  format-validate"
 	@echo "  help"
 	@echo "  watch"
 
