@@ -17,7 +17,7 @@ clean:
 	@rm -Rf dist/*
 
 cover:
-	elm-cover src --elm-test ${NPM_PATH}/elm-test --open -- --compiler ${ROOT_DIR}/.bin/elm-make
+	elm-coverage src --elm-test ${NPM_PATH}/elm-test --open -- --compiler ${ROOT_DIR}/node_modules/.bin/elm-make
 
 deps:
 	@npm install
@@ -50,7 +50,7 @@ help:
 	@echo "  watch"
 
 test:
-	@elm-test --compiler ${ROOT_DIR}/.bin/elm-make
+	@elm-test --compiler ${ROOT_DIR}/node_modules/.bin/elm-make
 
 watch:
 	find src -name '*.elm' | entr make all
