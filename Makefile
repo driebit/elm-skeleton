@@ -25,6 +25,7 @@ deps:
 
 distclean: clean
 	@rm -Rf elm-stuff
+	@rm -Rf tests/elm-stuff
 	@rm -Rf node_modules
 
 format:
