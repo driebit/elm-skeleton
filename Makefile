@@ -1,12 +1,14 @@
+default: all
+
+ELM_FILES = $(shell find src -name '*.elm')
+
 SHELL := /bin/bash
 NPM_PATH := ./node_modules/.bin
 
 export PATH := $(NPM_PATH):$(PATH)
 
-default: all
-
-all:
-	elm-make --warn --yes src/Main.elm --output dist/main.js
+all: $(ELM_FILES)
+	@elm-make --warn --yes src/Main.elm --output dist/main.js
 
 clean:
 	@rm -Rf dist/*
@@ -22,5 +24,11 @@ distclean: clean
 help:
 	@echo "Run: make <target> where <target> is one of the following:"
 	@echo "  all"
+	@echo "  clean"
 	@echo "  deps"
 	@echo "  distclean"
+	@echo "  help"
+	@echo "  watch"
+
+watch:
+	find src -name '*.elm' | entr make all
