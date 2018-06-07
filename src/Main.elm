@@ -23,12 +23,23 @@ main =
 
 
 type alias Model =
-    { route : Route }
+    { route : Route
+    , page : Page
+    }
+
+
+type Page
+    = Home
+    | Article
+    | Loading
+    | Unknown
 
 
 init : Navigation.Location -> ( Model, Cmd Msg )
 init location =
-    ( { route = Route.fromLocation location }
+    ( { route = Route.fromLocation location
+      , page = Loading
+      }
     , Cmd.none
     )
 
@@ -46,12 +57,27 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         OnNavigation location ->
-            ( { model | route = Route.fromLocation location }
-            , Cmd.none
-            )
+            check { model | route = Route.fromLocation location }
 
         PushUrl route ->
             ( model, Navigation.newUrl (Route.toUrl route) )
+
+
+check : Model -> ( Model, Cmd Msg )
+check model =
+    let
+        ( page, cmds ) =
+            case model.route of
+                Route.Root ->
+                    ( Home, Cmd.none )
+
+                Route.Article id ->
+                    ( Article, Cmd.none )
+
+                Route.NotFound ->
+                    ( Unknown, Cmd.none )
+    in
+    ( { model | page = page }, cmds )
 
 
 

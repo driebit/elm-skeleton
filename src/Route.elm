@@ -10,7 +10,8 @@ import UrlParser as Url exposing ((</>))
 
 type Route
     = Root
-    | Page Id
+    | Article Id
+    | NotFound
 
 
 type alias Id =
@@ -31,7 +32,8 @@ parser : Url.Parser (Route -> a) a
 parser =
     Url.oneOf
         [ Url.map Root Url.top
-        , Url.map Page (Url.s "page" </> Url.int)
+        , Url.map Article (Url.s "page" </> Url.int)
+        , Url.map NotFound (Url.s "404")
         ]
 
 
@@ -51,8 +53,11 @@ toRouteData route =
         Root ->
             RouteData "/" "Home"
 
-        Page id ->
+        Article id ->
             RouteData ("/page/" ++ toString id) ("Page " ++ toString id)
+
+        NotFound ->
+            RouteData "/404" "Not found"
 
 
 toTitle : Route -> String
