@@ -1,7 +1,6 @@
 module Main exposing (main)
 
 import Html exposing (..)
-import Html.Attributes exposing (..)
 import Navigation
 import Route exposing (Route)
 
@@ -59,7 +58,7 @@ update msg model =
 -- VIEW
 
 
-view : Model -> Html msg
+view : Model -> Html Msg
 view model =
-    div []
-        [ Route.link Route.Root [] [ h1 [] [ text "Hello" ] ] ]
+    main_ []
+        [ Route.link PushUrl Route.Root [] [ h1 [] [ text "Hello" ] ] ]
