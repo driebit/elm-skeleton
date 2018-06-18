@@ -38,16 +38,16 @@ format-validate:
 
 help:
 	@echo "Run: make <target> where <target> is one of the following:"
-	@echo "  all"
-	@echo "  clean"
-	@echo "  cover"
-	@echo "  deps"
-	@echo "  distclean"
-	@echo "  format"
-	@echo "  format-validate"
-	@echo "  help"
-	@echo "  test"
-	@echo "  watch"
+	@echo "  all                    Compile all Elm files"
+	@echo "  clean                  Remove 'dist' folder"
+	@echo "  cover                  Run Elm coverage"
+	@echo "  deps                   Install build dependencies"
+	@echo "  distclean              Remove build dependencies"
+	@echo "  format                 Run Elm format"
+	@echo "  format-validate        Check if Elm files are formatted"
+	@echo "  help                   Magic"
+	@echo "  test                   Run Elm-test"
+	@echo "  watch                  Run 'make all' on Elm file change"
 
 test:
 	@elm-test --compiler ${ROOT_DIR}/node_modules/.bin/elm-make
