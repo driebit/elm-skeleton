@@ -13,6 +13,9 @@ export PATH := $(NPM_PATH):$(PATH)
 all: $(ELM_FILES)
 	@elm-make --warn --yes src/Main.elm --output dist/main.js
 
+analyse: deps
+	@elm-analyse --elm-format-path=./node_modules/elm-format/bin/elm-format src
+
 clean:
 	@rm -Rf dist/*
 

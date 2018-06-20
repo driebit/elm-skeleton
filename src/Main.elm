@@ -71,7 +71,7 @@ check model =
                 Route.Root ->
                     ( Home, Cmd.none )
 
-                Route.Article id ->
+                Route.Article _ ->
                     ( Article, Cmd.none )
 
                 Route.NotFound ->
@@ -85,6 +85,6 @@ check model =
 
 
 view : Model -> Html Msg
-view model =
+view _ =
     main_ []
         [ Route.link PushUrl Route.Root [] [ h1 [] [ text "Hello" ] ] ]
