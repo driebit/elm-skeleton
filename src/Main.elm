@@ -37,11 +37,10 @@ type Page
 
 init : Navigation.Location -> ( Model, Cmd Msg )
 init location =
-    ( { route = Route.fromLocation location
-      , page = Loading
-      }
-    , Cmd.none
-    )
+    updatePage
+        { route = Route.fromLocation location
+        , page = Loading
+        }
 
 
 
@@ -57,14 +56,14 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         OnNavigation location ->
-            check { model | route = Route.fromLocation location }
+            updatePage { model | route = Route.fromLocation location }
 
         PushUrl route ->
             ( model, Navigation.newUrl (Route.toUrl route) )
 
 
-check : Model -> ( Model, Cmd Msg )
-check model =
+updatePage : Model -> ( Model, Cmd Msg )
+updatePage model =
     let
         ( page, cmds ) =
             case model.route of
