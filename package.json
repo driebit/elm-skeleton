@@ -9,6 +9,7 @@
     },
     "dependencies": {
         "elm": "0.18.x",
+        "elm-analyse": "^0.14.2",
         "elm-coverage": "0.1.x",
         "elm-format": "0.7.0-exp",
         "elm-test": "0.18.x"
