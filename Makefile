@@ -42,6 +42,7 @@ format-validate:
 help:
 	@echo "Run: make <target> where <target> is one of the following:"
 	@echo "  all                    Compile all Elm files"
+	@echo "  analyse                Run Elm analyse"
 	@echo "  clean                  Remove 'dist' folder"
 	@echo "  cover                  Run Elm coverage"
 	@echo "  deps                   Install build dependencies"
