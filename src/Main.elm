@@ -1,6 +1,11 @@
 module Main exposing (main)
 
+import Ginger.Media as Media
+import Ginger.Resource exposing (Resource)
+import Ginger.Rest
 import Html exposing (..)
+import Html.Attributes exposing (..)
+import Http
 import Navigation
 import Route exposing (Route)
 
@@ -25,6 +30,7 @@ main =
 type alias Model =
     { route : Route
     , page : Page
+    , data : Maybe Resource
     }
 
 
@@ -40,6 +46,7 @@ init location =
     updatePage
         { route = Route.fromLocation location
         , page = Loading
+        , data = Nothing
         }
 
 
@@ -50,6 +57,7 @@ init location =
 type Msg
     = OnNavigation Navigation.Location
     | PushUrl Route
+    | GotResource (Result Http.Error Resource)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -60,6 +68,13 @@ update msg model =
 
         PushUrl route ->
             ( model, Navigation.newUrl (Route.toUrl route) )
+
+        GotResource result ->
+            let
+                _ =
+                    Debug.log "data" result
+            in
+            ( { model | data = Result.toMaybe result }, Cmd.none )
 
 
 updatePage : Model -> ( Model, Cmd Msg )
@@ -76,7 +91,10 @@ updatePage model =
                 Route.NotFound ->
                     ( Unknown, Cmd.none )
     in
-    ( { model | page = page }, cmds )
+    ( { model | page = page }
+    , Http.send GotResource <|
+        Ginger.Rest.requestResourceByPath "/"
+    )
 
 
 
@@ -84,6 +102,11 @@ updatePage model =
 
 
 view : Model -> Html Msg
-view _ =
+view model =
+    let
+        imageUrl =
+            Maybe.andThen (Media.depiction Media.Small) model.data
+                |> Maybe.withDefault "fallbackurl"
+    in
     main_ []
-        [ Route.link PushUrl Route.Root [] [ h1 [] [ text "Hello" ] ] ]
+        [ h1 [] [ text "hello world" ], img [ src imageUrl ] [] ]
