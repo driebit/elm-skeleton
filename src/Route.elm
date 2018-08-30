@@ -4,6 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Json.Decode as Decode
 import Url exposing (Url)
+import Url.Builder as Builder
 import Url.Parser exposing ((</>), Parser)
 
 
@@ -53,10 +54,11 @@ toRouteData route =
             RouteData "/" "Home"
 
         Article id ->
-            RouteData ("/page/" ++ String.fromInt id) ("Page " ++ String.fromInt id)
+            RouteData (Builder.absolute [ "page", String.fromInt id ] [])
+                ("Page " ++ String.fromInt id)
 
         NotFound ->
-            RouteData "/404" "Not found"
+            RouteData (Builder.absolute [ "404" ] []) "Not found"
 
 
 toTitle : Route -> String
