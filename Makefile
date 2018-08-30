@@ -11,20 +11,21 @@ ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 export PATH := $(NPM_PATH):$(PATH)
 
 all: $(ELM_FILES)
-	@elm-make --warn --yes src/Main.elm --output dist/main.js
+	@elm make src/Main.elm --output dist/main.js
 
-analyse: deps
-	@elm-analyse --elm-format-path=./node_modules/elm-format/bin/elm-format src
+# TODO:
+# analyse: deps
+# 	@elm-analyse --elm-format-path=./node_modules/elm-format/bin/elm-format src
 
 clean:
 	@rm -Rf dist/*
 
-cover:
-	elm-coverage src --elm-test ${NPM_PATH}/elm-test --open -- --compiler ${ROOT_DIR}/node_modules/.bin/elm-make
+# TODO:
+# cover:
+# 	elm-coverage src --elm-test ${NPM_PATH}/elm-test --open -- --compiler ${ROOT_DIR}/node_modules/.bin/elm-make
 
 deps:
 	@npm install
-	@elm-package install --yes
 
 distclean: clean
 	@rm -Rf elm-stuff
@@ -42,9 +43,9 @@ format-validate:
 help:
 	@echo "Run: make <target> where <target> is one of the following:"
 	@echo "  all                    Compile all Elm files"
-	@echo "  analyse                Run Elm analyse"
+	# @echo "  analyse                Run Elm analyse"
 	@echo "  clean                  Remove 'dist' folder"
-	@echo "  cover                  Run Elm coverage"
+	# @echo "  cover                  Run Elm coverage"
 	@echo "  deps                   Install build dependencies"
 	@echo "  distclean              Remove build dependencies"
 	@echo "  format                 Run Elm format"
