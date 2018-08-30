@@ -1,25 +1,27 @@
 module Main exposing (main)
 
-import Ginger.Media as Media
-import Ginger.Resource exposing (Resource)
-import Ginger.Rest
+import Browser
+import Browser.Navigation
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Http
-import Navigation
 import Route exposing (Route)
+import Url exposing (Url)
+
 
 
 -- MAIN
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-    Navigation.program OnNavigation
+    Browser.application
         { init = init
         , view = view
         , update = update
         , subscriptions = \_ -> Sub.none
+        , onUrlChange = OnUrlChange
+        , onUrlRequest = OnUrlRequest
         }
 
 
@@ -30,7 +32,7 @@ main =
 type alias Model =
     { route : Route
     , page : Page
-    , data : Maybe Resource
+    , key : Browser.Navigation.Key
     }
 
 
@@ -41,12 +43,12 @@ type Page
     | Unknown
 
 
-init : Navigation.Location -> ( Model, Cmd Msg )
-init location =
+init : flags -> Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )
+init _ location key =
     updatePage
         { route = Route.fromLocation location
         , page = Loading
-        , data = Nothing
+        , key = key
         }
 
 
@@ -55,26 +57,23 @@ init location =
 
 
 type Msg
-    = OnNavigation Navigation.Location
-    | PushUrl Route
-    | GotResource (Result Http.Error Resource)
+    = OnUrlChange Url
+    | OnUrlRequest Browser.UrlRequest
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        OnNavigation location ->
+        OnUrlChange location ->
             updatePage { model | route = Route.fromLocation location }
 
-        PushUrl route ->
-            ( model, Navigation.newUrl (Route.toUrl route) )
+        OnUrlRequest urlRequest ->
+            case urlRequest of
+                Browser.Internal url ->
+                    ( model, Browser.Navigation.pushUrl model.key (Url.toString url) )
 
-        GotResource result ->
-            let
-                _ =
-                    Debug.log "data" result
-            in
-            ( { model | data = Result.toMaybe result }, Cmd.none )
+                Browser.External href ->
+                    ( model, Browser.Navigation.load href )
 
 
 updatePage : Model -> ( Model, Cmd Msg )
@@ -92,8 +91,7 @@ updatePage model =
                     ( Unknown, Cmd.none )
     in
     ( { model | page = page }
-    , Http.send GotResource <|
-        Ginger.Rest.requestResourceByPath "/"
+    , Cmd.none
     )
 
 
@@ -101,12 +99,8 @@ updatePage model =
 -- VIEW
 
 
-view : Model -> Html Msg
+view : Model -> Browser.Document Msg
 view model =
-    let
-        imageUrl =
-            Maybe.andThen (Media.depiction Media.Small) model.data
-                |> Maybe.withDefault "fallbackurl"
-    in
-    main_ []
-        [ h1 [] [ text "hello world" ], img [ src imageUrl ] [] ]
+    { title = Route.toTitle model.route
+    , body = [ main_ [] [ h1 [] [ text "hello world" ] ] ]
+    }
