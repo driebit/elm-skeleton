@@ -67,13 +67,11 @@ update msg model =
         OnUrlChange location ->
             updatePage { model | route = Route.fromLocation location }
 
-        OnUrlRequest urlRequest ->
-            case urlRequest of
-                Browser.Internal url ->
-                    ( model, Browser.Navigation.pushUrl model.key (Url.toString url) )
+        OnUrlRequest (Browser.Internal url) ->
+            ( model, Browser.Navigation.pushUrl model.key (Url.toString url) )
 
-                Browser.External href ->
-                    ( model, Browser.Navigation.load href )
+        OnUrlRequest (Browser.External href) ->
+            ( model, Browser.Navigation.load href )
 
 
 updatePage : Model -> ( Model, Cmd Msg )
