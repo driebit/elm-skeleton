@@ -11,7 +11,7 @@ ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 export PATH := $(NPM_PATH):$(PATH)
 
 all: $(ELM_FILES)
-	@elm make src/Main.elm --output dist/main.js
+	@elm make src/Main.elm --output dist/main.js --yes
 
 # TODO:
 # analyse: deps
