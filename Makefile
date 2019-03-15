@@ -13,16 +13,11 @@ export PATH := $(NPM_PATH):$(PATH)
 all: $(ELM_FILES)
 	@yes | elm make src/Main.elm --output dist/main.js
 
-# TODO:
-# analyse: deps
-# 	@elm-analyse --elm-format-path=./node_modules/elm-format/bin/elm-format src
+analyse: deps
+	@elm-analyse --elm-format-path=./node_modules/elm-format/bin/elm-format src
 
 clean:
 	@rm -Rf dist/*
-
-# TODO:
-# cover:
-# 	elm-coverage src --elm-test ${NPM_PATH}/elm-test --open -- --compiler ${ROOT_DIR}/node_modules/.bin/elm-make
 
 deps:
 	@npm install
@@ -43,9 +38,8 @@ format-validate:
 help:
 	@echo "Run: make <target> where <target> is one of the following:"
 	@echo "  all                    Compile all Elm files"
-	# @echo "  analyse                Run Elm analyse"
+	@echo "  analyse                Run Elm analyse"
 	@echo "  clean                  Remove 'dist' folder"
-	# @echo "  cover                  Run Elm coverage"
 	@echo "  deps                   Install build dependencies"
 	@echo "  distclean              Remove build dependencies"
 	@echo "  format                 Run Elm format"
@@ -55,7 +49,7 @@ help:
 	@echo "  watch                  Run 'make all' on Elm file change"
 
 test:
-	@elm-test --compiler ${ROOT_DIR}/node_modules/.bin/elm-make
+	@elm-test
 
 watch:
-	find src -name '*.elm' | entr make all
+	@find src -name '*.elm' | entr make all
