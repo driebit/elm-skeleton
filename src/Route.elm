@@ -8,14 +8,14 @@ import Url.Builder as Builder
 import Url.Parser exposing ((</>), Parser)
 
 
+
+-- DEFINITIONS
+
+
 type Route
     = Root
-    | Article Id
+    | Article Int
     | NotFound
-
-
-type alias Id =
-    Int
 
 
 
@@ -82,9 +82,4 @@ Type checked internal links.
 -}
 link : Route -> List (Attribute msg) -> List (Html msg) -> Html msg
 link route attributes content =
-    a
-        ([ href (toUrl route)
-         ]
-            ++ attributes
-        )
-        content
+    a (href (toUrl route) :: attributes) content
