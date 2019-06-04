@@ -50,12 +50,11 @@ type Page
 
 init : flags -> Url -> Navigation.Key -> ( Model, Cmd Msg )
 init _ url key =
-    Debug.log "init" <|
-        onNavigation
-            { route = Route.fromUrl url
-            , page = Loading
-            , key = key
-            }
+    onNavigation
+        { route = Route.fromUrl url
+        , page = Loading
+        , key = key
+        }
 
 
 
