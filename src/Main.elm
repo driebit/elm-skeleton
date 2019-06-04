@@ -10,6 +10,8 @@ import Page.Article
 import Page.Home
 import Route exposing (Route)
 import Url exposing (Url)
+import View.Footer
+import View.NavBar
 
 
 
@@ -139,7 +141,12 @@ view model =
             viewPage model
     in
     { title = title
-    , body = page
+    , body =
+        List.concat
+            [ View.NavBar.view
+            , page
+            , View.Footer.view
+            ]
     }
 
 
