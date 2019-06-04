@@ -1,10 +1,13 @@
 module Main exposing (main)
 
 import Browser
-import Browser.Navigation
+import Browser.Navigation as Navigation
+import Data.Id as Id exposing (Id)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Http
+import Page.Article
+import Page.Home
 import Route exposing (Route)
 import Url exposing (Url)
 
@@ -32,21 +35,21 @@ main =
 type alias Model =
     { route : Route
     , page : Page
-    , key : Browser.Navigation.Key
+    , key : Navigation.Key
     }
 
 
 type Page
-    = Home
-    | Article
+    = Home Page.Home.Model
+    | Article Page.Article.Model
     | Loading
-    | Unknown
+    | Error String
 
 
-init : flags -> Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )
-init _ location key =
-    updatePage
-        { route = Route.fromLocation location
+init : flags -> Url -> Navigation.Key -> ( Model, Cmd Msg )
+init _ url key =
+    onNavigation
+        { route = Route.fromUrl url
         , page = Loading
         , key = key
         }
@@ -59,38 +62,61 @@ init _ location key =
 type Msg
     = OnUrlChange Url
     | OnUrlRequest Browser.UrlRequest
+    | HomeMsg Page.Home.Msg
+    | ArticleMsg Page.Article.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        OnUrlChange location ->
-            updatePage { model | route = Route.fromLocation location }
+        OnUrlChange url ->
+            onNavigation { model | route = Route.fromUrl url }
 
         OnUrlRequest (Browser.Internal url) ->
-            ( model, Browser.Navigation.pushUrl model.key (Url.toString url) )
+            ( model, Navigation.pushUrl model.key (Url.toString url) )
 
         OnUrlRequest (Browser.External href) ->
-            ( model, Browser.Navigation.load href )
+            ( model, Navigation.load href )
+
+        HomeMsg homeMsg ->
+            case model.page of
+                Home model_ ->
+                    mapPage model Home HomeMsg <|
+                        Page.Home.update homeMsg model_
+
+                _ ->
+                    ( model, Cmd.none )
+
+        ArticleMsg articleMsg ->
+            case model.page of
+                Article model_ ->
+                    mapPage model Article ArticleMsg <|
+                        Page.Article.update articleMsg model_
+
+                _ ->
+                    ( model, Cmd.none )
 
 
-updatePage : Model -> ( Model, Cmd Msg )
-updatePage model =
-    let
-        ( page, cmds ) =
-            case model.route of
-                Route.Root ->
-                    ( Home, Cmd.none )
-
-                Route.Article _ ->
-                    ( Article, Cmd.none )
-
-                Route.NotFound ->
-                    ( Unknown, Cmd.none )
-    in
-    ( { model | page = page }
-    , Cmd.none
+mapPage : Model -> (a -> Page) -> (msg -> Msg) -> ( a, Cmd msg ) -> ( Model, Cmd Msg )
+mapPage model toPage toMsg ( page, cmds ) =
+    ( { model | page = toPage page }
+    , Cmd.map toMsg cmds
     )
+
+
+onNavigation : Model -> ( Model, Cmd Msg )
+onNavigation model =
+    case model.route of
+        Route.Root ->
+            mapPage model Home HomeMsg <|
+                Page.Home.init
+
+        Route.Article _ ->
+            mapPage model Article ArticleMsg <|
+                Page.Article.init
+
+        Route.NotFound ->
+            ( model, Cmd.none )
 
 
 
@@ -99,6 +125,32 @@ updatePage model =
 
 view : Model -> Browser.Document Msg
 view model =
-    { title = Route.toTitle model.route
-    , body = [ main_ [] [ h1 [] [ text "hello world" ] ] ]
+    let
+        { title, page } =
+            viewPage model
+    in
+    { title = title
+    , body = page
     }
+
+
+viewPage : Model -> { title : String, page : List (Html Msg) }
+viewPage model =
+    let
+        map pageMsg { title, page } =
+            { title = title
+            , page = List.map (Html.map pageMsg) page
+            }
+    in
+    case model.page of
+        Home model_ ->
+            map HomeMsg (Page.Home.view model_)
+
+        Article model_ ->
+            map ArticleMsg (Page.Article.view model_)
+
+        Loading ->
+            { title = "", page = [] }
+
+        Error err ->
+            { title = "", page = [ text err ] }

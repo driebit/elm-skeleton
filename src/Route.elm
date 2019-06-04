@@ -1,5 +1,6 @@
-module Route exposing (Route(..), fromLocation, link, toTitle, toUrl)
+module Route exposing (Route(..), fromUrl, link, toTitle, toUrl)
 
+import Data.Id as Id exposing (Id)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Json.Decode as Decode
@@ -14,7 +15,7 @@ import Url.Parser exposing ((</>), Parser)
 
 type Route
     = Root
-    | Article Int
+    | Article (Maybe (Id Id.Article))
     | NotFound
 
 
@@ -22,9 +23,9 @@ type Route
 -- PARSE
 
 
-fromLocation : Url -> Route
-fromLocation =
-    Maybe.withDefault Root
+fromUrl : Url -> Route
+fromUrl =
+    Maybe.withDefault NotFound
         << Url.Parser.parse parser
 
 
@@ -32,8 +33,7 @@ parser : Parser (Route -> a) a
 parser =
     Url.Parser.oneOf
         [ Url.Parser.map Root Url.Parser.top
-        , Url.Parser.map Article (Url.Parser.s "page" </> Url.Parser.int)
-        , Url.Parser.map NotFound (Url.Parser.s "404")
+        , Url.Parser.map Article (Url.Parser.s "article" </> Id.fromUrl)
         ]
 
 
@@ -53,9 +53,11 @@ toRouteData route =
         Root ->
             RouteData "/" "Home"
 
-        Article id ->
-            RouteData (Builder.absolute [ "page", String.fromInt id ] [])
-                ("Page " ++ String.fromInt id)
+        Article Nothing ->
+            RouteData (Builder.absolute [ "404" ] []) "Not found"
+
+        Article (Just id) ->
+            RouteData (Builder.absolute [ "article", Id.toUrlSegment id ] []) "Article"
 
         NotFound ->
             RouteData (Builder.absolute [ "404" ] []) "Not found"
