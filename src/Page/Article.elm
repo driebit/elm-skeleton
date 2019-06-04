@@ -6,9 +6,12 @@ module Page.Article exposing
     , view
     )
 
+import Data.Id as Id exposing (Id)
+import Data.Status as Status exposing (Status)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Http
 
 
 
@@ -16,12 +19,14 @@ import Html.Events exposing (..)
 
 
 type alias Model =
-    ()
+    { data : Status Http.Error String }
 
 
-init : ( Model, Cmd Msg )
-init =
-    ( (), Cmd.none )
+init : Id Id.Article -> ( Model, Cmd Msg )
+init articleId =
+    ( { data = Status.NotAsked }
+    , Cmd.none
+    )
 
 
 
@@ -29,14 +34,16 @@ init =
 
 
 type Msg
-    = NoOp
+    = GotData (Result Http.Error String)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        NoOp ->
-            ( model, Cmd.none )
+        GotData data ->
+            ( { model | data = Status.fromResult data }
+            , Cmd.none
+            )
 
 
 
@@ -47,7 +54,23 @@ view : Model -> { title : String, page : List (Html Msg) }
 view model =
     { title = "Article"
     , page =
-        [ header [] [ h1 [] [ text "Article page" ] ]
-        , main_ [] []
+        [ header [] [ h1 [] [ text "Article" ] ]
+        , main_ [] (viewPage model)
         ]
     }
+
+
+viewPage : Model -> List (Html Msg)
+viewPage model =
+    case model.data of
+        Status.NotAsked ->
+            [ text "not asked" ]
+
+        Status.Loading ->
+            [ text "loading" ]
+
+        Status.Failure err _ ->
+            [ text "error" ]
+
+        Status.Success data ->
+            [ text data ]

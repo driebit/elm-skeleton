@@ -6,9 +6,11 @@ module Page.Home exposing
     , view
     )
 
+import Data.Status as Status exposing (Status)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Http
 
 
 
@@ -16,12 +18,14 @@ import Html.Events exposing (..)
 
 
 type alias Model =
-    ()
+    { data : Status Http.Error String }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( (), Cmd.none )
+    ( { data = Status.NotAsked }
+    , Cmd.none
+    )
 
 
 
@@ -29,14 +33,16 @@ init =
 
 
 type Msg
-    = NoOp
+    = GotData (Result Http.Error String)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        NoOp ->
-            ( model, Cmd.none )
+        GotData data ->
+            ( { model | data = Status.fromResult data }
+            , Cmd.none
+            )
 
 
 
@@ -48,6 +54,22 @@ view model =
     { title = "Home"
     , page =
         [ header [] [ h1 [] [ text "Homepage" ] ]
-        , main_ [] []
+        , main_ [] (viewPage model)
         ]
     }
+
+
+viewPage : Model -> List (Html Msg)
+viewPage model =
+    case model.data of
+        Status.NotAsked ->
+            [ text "not asked" ]
+
+        Status.Loading ->
+            [ text "loading" ]
+
+        Status.Failure err _ ->
+            [ text "error" ]
+
+        Status.Success data ->
+            [ text data ]

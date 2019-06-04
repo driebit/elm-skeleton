@@ -48,11 +48,12 @@ type Page
 
 init : flags -> Url -> Navigation.Key -> ( Model, Cmd Msg )
 init _ url key =
-    onNavigation
-        { route = Route.fromUrl url
-        , page = Loading
-        , key = key
-        }
+    Debug.log "init" <|
+        onNavigation
+            { route = Route.fromUrl url
+            , page = Loading
+            , key = key
+            }
 
 
 
@@ -104,6 +105,11 @@ mapPage model toPage toMsg ( page, cmds ) =
     )
 
 
+{-| Map a Route (a parsed url) to a Page and initialize the modules Model.
+
+This is the place you fetch data to render the page.
+
+-}
 onNavigation : Model -> ( Model, Cmd Msg )
 onNavigation model =
     case model.route of
@@ -111,9 +117,12 @@ onNavigation model =
             mapPage model Home HomeMsg <|
                 Page.Home.init
 
-        Route.Article _ ->
+        Route.Article (Just id) ->
             mapPage model Article ArticleMsg <|
-                Page.Article.init
+                Page.Article.init id
+
+        Route.Article Nothing ->
+            ( model, Cmd.none )
 
         Route.NotFound ->
             ( model, Cmd.none )
