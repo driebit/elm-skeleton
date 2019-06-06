@@ -1,6 +1,7 @@
 module Main exposing (main)
 
 import Browser
+import Browser.Dom
 import Browser.Navigation as Navigation
 import Data.Id as Id exposing (Id)
 import Html exposing (..)
@@ -9,6 +10,7 @@ import Http
 import Page.Article
 import Page.Home
 import Route exposing (Route)
+import Task
 import Url exposing (Url)
 import View.Footer
 import View.NavBar
@@ -62,15 +64,23 @@ init _ url key =
 
 
 type Msg
-    = OnUrlChange Url
+    = NoOp
+    | OnUrlChange Url
     | OnUrlRequest Browser.UrlRequest
-    | HomeMsg Page.Home.Msg
+    | PageMsg PageMsg
+
+
+type PageMsg
+    = HomeMsg Page.Home.Msg
     | ArticleMsg Page.Article.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        NoOp ->
+            ( model, Cmd.none )
+
         OnUrlChange url ->
             onNavigation { model | route = Route.fromUrl url }
 
@@ -80,18 +90,13 @@ update msg model =
         OnUrlRequest (Browser.External href) ->
             ( model, Navigation.load href )
 
-        HomeMsg homeMsg ->
-            case model.page of
-                Home model_ ->
+        PageMsg pageMsg ->
+            case ( model.page, pageMsg ) of
+                ( Home model_, HomeMsg homeMsg ) ->
                     mapPage model Home HomeMsg <|
                         Page.Home.update homeMsg model_
 
-                _ ->
-                    ( model, Cmd.none )
-
-        ArticleMsg articleMsg ->
-            case model.page of
-                Article model_ ->
+                ( Article model_, ArticleMsg articleMsg ) ->
                     mapPage model Article ArticleMsg <|
                         Page.Article.update articleMsg model_
 
@@ -99,10 +104,10 @@ update msg model =
                     ( model, Cmd.none )
 
 
-mapPage : Model -> (a -> Page) -> (msg -> Msg) -> ( a, Cmd msg ) -> ( Model, Cmd Msg )
+mapPage : Model -> (a -> Page) -> (msg -> PageMsg) -> ( a, Cmd msg ) -> ( Model, Cmd Msg )
 mapPage model toPage toMsg ( page, cmds ) =
     ( { model | page = toPage page }
-    , Cmd.map toMsg cmds
+    , Cmd.map (PageMsg << toMsg) cmds
     )
 
 
@@ -113,20 +118,48 @@ This is the place you fetch data to render the page.
 -}
 onNavigation : Model -> ( Model, Cmd Msg )
 onNavigation model =
-    case model.route of
-        Route.Root ->
-            mapPage model Home HomeMsg <|
-                Page.Home.init
+    scrollOnNav model.page <|
+        case model.route of
+            Route.Root ->
+                mapPage model Home HomeMsg <|
+                    Page.Home.init
 
-        Route.Article (Just id) ->
-            mapPage model Article ArticleMsg <|
-                Page.Article.init id
+            Route.Article (Just id) ->
+                mapPage model Article ArticleMsg <|
+                    Page.Article.init id
 
-        Route.Article Nothing ->
-            ( model, Cmd.none )
+            Route.Article Nothing ->
+                ( model, Cmd.none )
 
-        Route.NotFound ->
-            ( model, Cmd.none )
+            Route.NotFound ->
+                ( model, Cmd.none )
+
+
+{-| Scroll to top of page on navigation.
+
+Do this if you navigate without the need to reset the scroll position.
+
+    case ( currentPage, model.route ) of
+        ( SomePage model_, SomePageRoute arguments ) ->
+            ( model, cmds )
+
+        _ ->
+            ( model
+            , Cmd.batch
+                [ cmds
+                , Task.perform (always NoOp) (Browser.Dom.setViewport 0 0)
+                ]
+            )
+
+-}
+scrollOnNav : Page -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
+scrollOnNav currentPage ( model, cmds ) =
+    ( model
+    , Cmd.batch
+        [ cmds
+        , Task.perform (always NoOp) (Browser.Dom.setViewport 0 0)
+        ]
+    )
 
 
 
@@ -159,10 +192,10 @@ viewPage model =
     in
     case model.page of
         Home model_ ->
-            map HomeMsg (Page.Home.view model_)
+            map (PageMsg << HomeMsg) (Page.Home.view model_)
 
         Article model_ ->
-            map ArticleMsg (Page.Article.view model_)
+            map (PageMsg << ArticleMsg) (Page.Article.view model_)
 
         Loading ->
             { title = "", page = [] }
