@@ -18,6 +18,14 @@ import Url.Parser as Url
 -- DEFINITIONS
 
 
+{-| Note that `Id a` does not contain a value `a` at all,
+this is called a phantom type, it's a dummy variable that
+let's us tag `Id` with another type.
+
+Learn more about this here:
+<https://medium.com/@ckoster22/advanced-types-in-elm-phantom-types-808044c5946d>
+
+-}
 type Id a
     = Id String
 
