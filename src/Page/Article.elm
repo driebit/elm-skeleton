@@ -6,7 +6,7 @@ module Page.Article exposing
     , view
     )
 
-import Data.Id as Id exposing (Id)
+import Data.Id as Id exposing (ArticleId)
 import Data.Status as Status exposing (Status)
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -22,7 +22,7 @@ type alias Model =
     { data : Status Http.Error String }
 
 
-init : Id Id.Article -> ( Model, Cmd Msg )
+init : ArticleId -> ( Model, Cmd Msg )
 init articleId =
     ( { data = Status.NotAsked }
     , Cmd.none

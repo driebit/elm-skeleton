@@ -1,15 +1,15 @@
 module Data.Id exposing
-    ( Article
-    , Id
+    ( ArticleId
     , fromJson
-    , fromUrl
-    , toJson
+    , fromUrlInt
+    , fromUrlString
     , toString
     , toUrlSegment
     )
 
 import Json.Decode as Decode
 import Json.Encode as Encode
+import Tagged exposing (Tagged)
 import Url
 import Url.Parser as Url
 
@@ -18,16 +18,16 @@ import Url.Parser as Url
 -- DEFINITIONS
 
 
-{-| Note that `Id a` does not contain a value `a` at all,
+{-| Note that `Tagged a b` does not contain a value `a` at all,
 this is called a phantom type, it's a dummy variable that
-let's us tag `Id` with another type.
+let's us tag `Tagged` with another type.
 
 Learn more about this here:
 <https://medium.com/@ckoster22/advanced-types-in-elm-phantom-types-808044c5946d>
 
 -}
-type Id a
-    = Id String
+type alias ArticleId =
+    Tagged Article String
 
 
 type Article
@@ -38,26 +38,26 @@ type Article
 -- CONVERSIONS
 
 
-toString : Id a -> String
-toString (Id id) =
-    id
+toString : Tagged a String -> String
+toString =
+    Tagged.untag
 
 
-fromUrl : Url.Parser (Maybe (Id b) -> a) a
-fromUrl =
-    Url.map (Maybe.map Id << Url.percentDecode) Url.string
+fromUrlString : Url.Parser (Maybe (Tagged b String) -> a) a
+fromUrlString =
+    Url.map (Maybe.map Tagged.tag << Url.percentDecode) Url.string
 
 
-toUrlSegment : Id b -> String
-toUrlSegment (Id id) =
-    Url.percentEncode id
+fromUrlInt : Url.Parser (Tagged b Int -> a) a
+fromUrlInt =
+    Url.map Tagged.tag Url.int
 
 
-fromJson : Decode.Decoder (Id a)
+toUrlSegment : Tagged a String -> String
+toUrlSegment =
+    Url.percentEncode << Tagged.untag
+
+
+fromJson : Decode.Decoder a -> Decode.Decoder (Tagged b a)
 fromJson =
-    Decode.map Id Decode.string
-
-
-toJson : Id a -> Encode.Value
-toJson (Id id) =
-    Encode.string id
+    Decode.map Tagged.tag

@@ -1,6 +1,6 @@
 module Route exposing (Route(..), fromUrl, link, toTitle, toUrl)
 
-import Data.Id as Id exposing (Id)
+import Data.Id as Id exposing (ArticleId)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Json.Decode as Decode
@@ -15,7 +15,7 @@ import Url.Parser exposing ((</>), Parser)
 
 type Route
     = Root
-    | Article (Maybe (Id Id.Article))
+    | Article (Maybe ArticleId)
     | NotFound
 
 
@@ -33,7 +33,7 @@ parser : Parser (Route -> a) a
 parser =
     Url.Parser.oneOf
         [ Url.Parser.map Root Url.Parser.top
-        , Url.Parser.map Article (Url.Parser.s "article" </> Id.fromUrl)
+        , Url.Parser.map Article (Url.Parser.s "article" </> Id.fromUrlString)
         ]
 
 

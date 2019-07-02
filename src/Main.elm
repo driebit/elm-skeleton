@@ -3,7 +3,7 @@ module Main exposing (main)
 import Browser
 import Browser.Dom
 import Browser.Navigation as Navigation
-import Data.Id as Id exposing (Id)
+import Data.Id as Id exposing (ArticleId)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Http
