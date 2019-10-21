@@ -1,7 +1,7 @@
-# Ginger Elm Skeleton 
+# Elm Skeleton
 
 ## Install
-Install Elm, Elm-test, Elm-format and Elm-coverage.
+Install elm, elm-test, elm-format.
 ```
 make deps
 ```
