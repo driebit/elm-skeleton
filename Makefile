@@ -20,7 +20,7 @@ clean:
 	@rm -Rf dist/*
 
 elm:
-	@elm make src/Main.elm --output dist/main.js
+	@elm make --debug src/Main.elm --output dist/main.js
 
 elmoptimized:
 	@elm make --optimize src/Main.elm --output dist/main.js
